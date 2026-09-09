@@ -61,7 +61,7 @@ export const ReusableCoverflow: React.FC<ReusableCoverflowProps> = ({
 
       setTimeout(() => {
         setIsAnimating(false);
-      }, 800);
+      }, 500);
     },
     [isAnimating, total, items, onActiveChange]
   );
@@ -151,7 +151,7 @@ export const ReusableCoverflow: React.FC<ReusableCoverflowProps> = ({
 
             let cardClass = 'hidden opacity-0 pointer-events-none';
             let style: React.CSSProperties = {
-              transition: 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
             };
 
             if (offset === 0) {

@@ -29,7 +29,7 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
   const cleanNumber = whatsappNum.replace(/[^\d+]/g, '');
 
   return (
-    <section className="relative w-full h-[85vh] min-h-[500px] max-h-[900px] overflow-hidden bg-black">
+    <section id="hero" className="relative w-full h-[85vh] min-h-[500px] max-h-[900px] overflow-hidden bg-black">
       <div className="absolute inset-0 z-0">
         <Image
           src={heroImg}
@@ -61,10 +61,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
 
       <div className="relative z-10 max-w-6xl mx-auto h-full px-6 flex flex-col justify-end pb-16 text-center sm:text-start">
         <div className="max-w-2xl">
-          <span className="inline-block text-amber-400 text-xs tracking-[0.25em] uppercase font-semibold mb-3 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">
-            {t('luxuryStore', 'متجر الأزياء الفاخرة', 'Luxury Fashion Store')}
-          </span>
-          
           <h1 className="text-3xl sm:text-5xl font-serif text-white font-light tracking-wide leading-tight mb-4 drop-shadow-md">
             {title}
           </h1>

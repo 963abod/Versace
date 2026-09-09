@@ -111,7 +111,7 @@ function HomePageContent() {
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       }} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12 pb-24 lg:pb-12 space-y-24">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12 pb-32 lg:pb-12 space-y-24">
         {/* PRODUCTS SECTION */}
         <section id="products" className="scroll-mt-24">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">

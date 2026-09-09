@@ -7,7 +7,7 @@ export const Footer: React.FC = () => {
   const { settings, t } = useSettings();
 
   const storeName = settings?.storeName || 'VERSACE';
-  const footerText = settings?.footerText || `جميع الحقوق محفوظة © 2025 ${storeName}`;
+  const footerText = settings?.footerText || `جميع الحقوق محفوظة © 2026 ${storeName}`;
   const aboudUrl = settings?.aboudUrl || 'https://aboudweb.onrender.com';
 
   return (
