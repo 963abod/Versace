@@ -3,23 +3,29 @@ import { cookies } from 'next/headers';
 import bcrypt from 'bcryptjs';
 import { getStoreData } from '@/lib/store';
 
-const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'versace-luxury-fashion-store-secret-jwt-key-2025'
-);
-
 const COOKIE_NAME = 'versace_admin_token';
+
+function getJwtSecret(): Uint8Array {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    console.warn('JWT_SECRET is not set in environment variables; using runtime fallback key.');
+  }
+  return new TextEncoder().encode(
+    secret || 'versace-luxury-fashion-store-jwt-secret-runtime-key'
+  );
+}
 
 export async function signToken(payload: { username: string }) {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('24h')
-    .sign(SECRET_KEY);
+    .sign(getJwtSecret());
 }
 
 export async function verifyToken(token: string) {
   try {
-    const verified = await jwtVerify(token, SECRET_KEY);
+    const verified = await jwtVerify(token, getJwtSecret());
     return verified.payload as { username: string };
   } catch {
     return null;
@@ -29,7 +35,6 @@ export async function verifyToken(token: string) {
 export async function authenticateAdmin(password: string): Promise<boolean> {
   const data = getStoreData();
   const hash = data.settings.adminPasswordHash;
-  if (password === 'admin') return true;
   if (!hash) return false;
   return await bcrypt.compare(password, hash);
 }
