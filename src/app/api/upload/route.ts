@@ -3,6 +3,13 @@ import { getAdminFromSession } from '@/lib/auth';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
+function getUploadDir(): string {
+  if (process.env.DATA_DIR) {
+    return path.join(process.env.DATA_DIR, 'uploads');
+  }
+  return path.join(process.cwd(), 'public', 'uploads');
+}
+
 export async function POST(request: Request) {
   const session = await getAdminFromSession();
   if (!session) {
@@ -17,7 +24,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'لم يتم تحميل أي ملف' }, { status: 400 });
     }
 
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    const uploadDir = getUploadDir();
     await mkdir(uploadDir, { recursive: true });
 
     const fileUrls: string[] = [];

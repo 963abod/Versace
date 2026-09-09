@@ -9,7 +9,12 @@ interface StoreData {
   settings: Settings;
 }
 
-const DATA_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'store.json');
+function getDataFilePath(): string {
+  if (process.env.DATA_DIR) {
+    return path.join(process.env.DATA_DIR, 'store.json');
+  }
+  return path.join(process.cwd(), 'src', 'data', 'store.json');
+}
 
 const INITIAL_DATA: StoreData = {
   settings: {
@@ -230,17 +235,18 @@ const INITIAL_DATA: StoreData = {
 
 export function getStoreData(): StoreData {
   try {
-    const dir = path.dirname(DATA_FILE_PATH);
+    const filePath = getDataFilePath();
+    const dir = path.dirname(filePath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
 
-    if (!fs.existsSync(DATA_FILE_PATH)) {
-      fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(INITIAL_DATA, null, 2), 'utf-8');
+    if (!fs.existsSync(filePath)) {
+      fs.writeFileSync(filePath, JSON.stringify(INITIAL_DATA, null, 2), 'utf-8');
       return INITIAL_DATA;
     }
 
-    const fileContent = fs.readFileSync(DATA_FILE_PATH, 'utf-8');
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
     return JSON.parse(fileContent) as StoreData;
   } catch (error) {
     console.error('Error reading store data:', error);
@@ -250,11 +256,12 @@ export function getStoreData(): StoreData {
 
 export function saveStoreData(data: StoreData): void {
   try {
-    const dir = path.dirname(DATA_FILE_PATH);
+    const filePath = getDataFilePath();
+    const dir = path.dirname(filePath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
-    fs.writeFileSync(DATA_FILE_PATH, JSON.stringify(data, null, 2), 'utf-8');
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
     console.error('Error saving store data:', error);
   }
