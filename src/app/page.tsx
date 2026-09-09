@@ -9,6 +9,7 @@ import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { ReusableCoverflow, CoverflowItem } from '@/components/ReusableCoverflow';
 import { Product, Collection, Review } from '@/types';
+import Image from 'next/image';
 import { SlidersHorizontal, Search, Star, RefreshCw } from 'lucide-react';
 
 function HomePageContent() {
@@ -110,7 +111,7 @@ function HomePageContent() {
         if (el) el.scrollIntoView({ behavior: 'smooth' });
       }} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12 space-y-24">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-12 pb-24 lg:pb-12 space-y-24">
         {/* PRODUCTS SECTION */}
         <section id="products" className="scroll-mt-24">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
@@ -287,10 +288,12 @@ function HomePageContent() {
             </div>
 
             <div className="relative h-[320px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-              <img
+              <Image
                 src={settings?.aboutUsImage || 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?q=80&w=1200&auto=format&fit=crop'}
                 alt="About Us"
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
               />
             </div>
           </div>
@@ -304,7 +307,7 @@ function HomePageContent() {
                 {t('reviewsTitle', 'آراء العملاء المميزين', 'Customer Testimonials')}
               </h2>
               <p className="text-xs text-neutral-400 font-light mt-1">
-                {t('reviewsSub', 'ما يقوله نخبزاؤنا عن تجربة التسوق لدينا', 'What our distinguished clients say about us')}
+                {t('reviewsSub', 'ما يقوله نخبة عملائنا عن تجربة التسوق لدينا', 'What our distinguished clients say about us')}
               </p>
               <div className="mt-3 h-[1px] w-16 bg-amber-400/50 mx-auto"></div>
             </div>

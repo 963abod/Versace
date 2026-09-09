@@ -228,7 +228,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   {t('inStock', 'متوفر في المعرض', 'In Stock')}
                 </span>
               ) : (
-                <span className="text-rose-400 font-medium">{t('outOfStock', 'نفذت الكمية', 'Out of Stock')}</span>
+                <span className="text-rose-400 font-medium">{t('outOfStock', 'نفدت الكمية', 'Out of Stock')}</span>
               )}
             </div>
 

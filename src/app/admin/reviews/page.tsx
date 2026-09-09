@@ -80,7 +80,7 @@ export default function AdminReviewsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت تأكد من رغبتك في حذف هذا التقييم؟')) return;
+    if (!confirm('هل أنت متأكد من رغبتك في حذف هذا التقييم؟')) return;
 
     try {
       const res = await fetch(`/api/reviews/${id}`, { method: 'DELETE' });

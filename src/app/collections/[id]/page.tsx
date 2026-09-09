@@ -6,6 +6,7 @@ import { useSettings } from '@/context/SettingsContext';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { ReusableCoverflow, CoverflowItem } from '@/components/ReusableCoverflow';
+import Image from 'next/image';
 import { Collection, Product } from '@/types';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 
@@ -82,7 +83,7 @@ export default function CollectionDetailPage({ params }: { params: Promise<{ id:
         </button>
 
         <div className="relative w-full h-[280px] rounded-3xl overflow-hidden border border-white/10 mb-12 flex items-end p-8">
-          <img src={collection.image} alt={collection.name} className="absolute inset-0 w-full h-full object-cover opacity-50" />
+          <Image src={collection.image} alt={collection.name} fill sizes="100vw" className="object-cover opacity-50" priority />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
           <div className="relative z-10 max-w-xl">
             <span className="text-amber-400 text-xs font-semibold tracking-widest uppercase bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20">

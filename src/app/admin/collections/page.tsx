@@ -121,7 +121,7 @@ export default function AdminCollectionsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت تأكد من رغبتك في حذف هذه المجموعة؟')) return;
+    if (!confirm('هل أنت متأكد من رغبتك في حذف هذه المجموعة؟')) return;
 
     try {
       const res = await fetch(`/api/collections/${id}`, { method: 'DELETE' });
