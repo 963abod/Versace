@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getStoreData, saveStoreData } from '@/lib/store';
+import { getReviewsAsync, saveReviewAsync } from '@/lib/store';
 import { getAdminFromSession } from '@/lib/auth';
 import { Review } from '@/types';
 
 export async function GET() {
-  const data = getStoreData();
-  const reviews = [...data.reviews].sort(
+  const reviewsList = await getReviewsAsync();
+  const reviews = [...reviewsList].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
   return NextResponse.json(reviews);
@@ -19,7 +19,6 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const data = getStoreData();
 
     const newReview: Review = {
       id: 'rev-' + Date.now(),
@@ -29,8 +28,7 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     };
 
-    data.reviews.push(newReview);
-    saveStoreData(data);
+    await saveReviewAsync(newReview);
 
     return NextResponse.json(newReview, { status: 201 });
   } catch (error) {
