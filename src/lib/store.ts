@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { Product, Collection, Review, Settings } from '@/types';
+import { getSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
 
 interface StoreData {
   products: Product[];
@@ -265,4 +266,139 @@ export function saveStoreData(data: StoreData): void {
   } catch (error) {
     console.error('Error saving store data:', error);
   }
+}
+
+// Map database snake_case to Product interface
+function mapProductFromDb(p: Record<string, unknown>): Product {
+  return {
+    id: String(p.id),
+    name: String(p.name),
+    nameEn: p.name_en ? String(p.name_en) : undefined,
+    price: Number(p.price),
+    offerPrice: p.offer_price ? Number(p.offer_price) : undefined,
+    description: String(p.description || ''),
+    descriptionEn: p.description_en ? String(p.description_en) : undefined,
+    images: Array.isArray(p.images) ? (p.images as string[]) : [],
+    sizes: Array.isArray(p.sizes) ? (p.sizes as string[]) : [],
+    colors: Array.isArray(p.colors) ? (p.colors as string[]) : [],
+    category: String(p.category || 'عام'),
+    collectionId: p.collection_id ? String(p.collection_id) : undefined,
+    isNew: Boolean(p.is_new),
+    isOffer: Boolean(p.is_offer),
+    available: p.available !== undefined ? Boolean(p.available) : true,
+    order: Number(p.order || 1),
+    createdAt: String(p.created_at || new Date().toISOString()),
+  };
+}
+
+// Map database snake_case to Collection interface
+function mapCollectionFromDb(c: Record<string, unknown>): Collection {
+  return {
+    id: String(c.id),
+    name: String(c.name),
+    nameEn: c.name_en ? String(c.name_en) : undefined,
+    image: String(c.image),
+    description: String(c.description || ''),
+    descriptionEn: c.description_en ? String(c.description_en) : undefined,
+    order: Number(c.order || 1),
+  };
+}
+
+// Map database snake_case to Review interface
+function mapReviewFromDb(r: Record<string, unknown>): Review {
+  return {
+    id: String(r.id),
+    customerName: String(r.customer_name),
+    comment: String(r.comment),
+    rating: Number(r.rating || 5),
+    createdAt: String(r.created_at || new Date().toISOString()),
+  };
+}
+
+// Map database snake_case to Settings interface
+function mapSettingsFromDb(s: Record<string, unknown>): Settings {
+  return {
+    storeName: String(s.store_name || 'VERSACE'),
+    logoUrl: String(s.logo_url || '/images/versace-logo.png'),
+    heroImage: String(s.hero_image || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8'),
+    heroTitle: String(s.hero_title || 'فخامة لا تُضاهى، أسلوب إيطالي أصيل'),
+    heroTitleEn: String(s.hero_title_en || 'Unrivaled Luxury, Authentic Italian Style'),
+    heroDescription: String(s.hero_description || ''),
+    heroDescriptionEn: String(s.hero_description_en || ''),
+    whatsappNumber: String(s.whatsapp_number || '+963900000000'),
+    phone: String(s.phone || '+963900000000'),
+    instagram: String(s.instagram || 'https://instagram.com/versace'),
+    facebook: String(s.facebook || 'https://facebook.com/versace'),
+    googleMaps: String(s.google_maps || 'https://maps.google.com'),
+    address: String(s.address || 'شارع الفخامة الرئيسي، المزة، دمشق'),
+    openingHours: String(s.opening_hours || 'يومياً من 10:00 صباحاً حتى 11:00 مساءً'),
+    aboutUs: String(s.about_us || ''),
+    aboutUsEn: String(s.about_us_en || ''),
+    aboutUsImage: String(s.about_us_image || 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04'),
+    footerText: String(s.footer_text || 'جميع الحقوق محفوظة © 2026 VERSACE'),
+    aboudUrl: String(s.aboud_url || 'https://aboudweb.onrender.com'),
+    adminUsername: String(s.admin_username || 'admin'),
+    adminPasswordHash: String(s.admin_password_hash || '$2b$10$k83OLkgrx.loL5OvqWZMqevxmoK1OtEibbLKCiLHrFLtAhXs5o916'),
+  };
+}
+
+// Supabase-enabled Store Functions with Fallback
+export async function getProductsAsync(): Promise<Product[]> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('products').select('*').order('order', { ascending: true });
+      if (!error && data && data.length > 0) {
+        return data.map(mapProductFromDb);
+      }
+    } catch (e) {
+      console.error('Supabase getProductsAsync failed, using JSON fallback:', e);
+    }
+  }
+  return getStoreData().products;
+}
+
+export async function getCollectionsAsync(): Promise<Collection[]> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('collections').select('*').order('order', { ascending: true });
+      if (!error && data && data.length > 0) {
+        return data.map(mapCollectionFromDb);
+      }
+    } catch (e) {
+      console.error('Supabase getCollectionsAsync failed, using JSON fallback:', e);
+    }
+  }
+  return getStoreData().collections;
+}
+
+export async function getReviewsAsync(): Promise<Review[]> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('reviews').select('*').order('created_at', { ascending: false });
+      if (!error && data && data.length > 0) {
+        return data.map(mapReviewFromDb);
+      }
+    } catch (e) {
+      console.error('Supabase getReviewsAsync failed, using JSON fallback:', e);
+    }
+  }
+  return getStoreData().reviews;
+}
+
+export async function getSettingsAsync(): Promise<Settings> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('settings').select('*').eq('id', 1).single();
+      if (!error && data) {
+        return mapSettingsFromDb(data);
+      }
+    } catch (e) {
+      console.error('Supabase getSettingsAsync failed, using JSON fallback:', e);
+    }
+  }
+  return getStoreData().settings;
 }
