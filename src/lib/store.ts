@@ -384,6 +384,8 @@ export async function getProductsAsync(): Promise<Product[]> {
       const { data, error } = await supabase.from('products').select('*').order('order', { ascending: true });
       if (!error && data) {
         return data.map(mapProductFromDb);
+      } else if (error) {
+        console.error('Supabase getProductsAsync error:', JSON.stringify(error, null, 2));
       }
     } catch (e) {
       console.error('Supabase getProductsAsync failed:', e);
@@ -398,7 +400,7 @@ export async function saveProductAsync(product: Product): Promise<Product> {
     try {
       const row = mapProductToDb(product);
       const { error } = await supabase.from('products').upsert(row);
-      if (error) console.error('Supabase saveProductAsync error:', error);
+      if (error) console.error('Supabase saveProductAsync error:', JSON.stringify(error, null, 2));
     } catch (e) {
       console.error('Supabase saveProductAsync failed:', e);
     }
@@ -417,7 +419,7 @@ export async function deleteProductAsync(id: string): Promise<boolean> {
   if (supabase) {
     try {
       const { error } = await supabase.from('products').delete().eq('id', id);
-      if (error) console.error('Supabase deleteProductAsync error:', error);
+      if (error) console.error('Supabase deleteProductAsync error:', JSON.stringify(error, null, 2));
     } catch (e) {
       console.error('Supabase deleteProductAsync failed:', e);
     }
@@ -433,6 +435,8 @@ export async function getCollectionsAsync(): Promise<Collection[]> {
       const { data, error } = await supabase.from('collections').select('*').order('order', { ascending: true });
       if (!error && data) {
         return data.map(mapCollectionFromDb);
+      } else if (error) {
+        console.error('Supabase getCollectionsAsync error:', JSON.stringify(error, null, 2));
       }
     } catch (e) {
       console.error('Supabase getCollectionsAsync failed:', e);
@@ -447,7 +451,7 @@ export async function saveCollectionAsync(collection: Collection): Promise<Colle
     try {
       const row = mapCollectionToDb(collection);
       const { error } = await supabase.from('collections').upsert(row);
-      if (error) console.error('Supabase saveCollectionAsync error:', error);
+      if (error) console.error('Supabase saveCollectionAsync error:', JSON.stringify(error, null, 2));
     } catch (e) {
       console.error('Supabase saveCollectionAsync failed:', e);
     }
@@ -466,7 +470,7 @@ export async function deleteCollectionAsync(id: string): Promise<boolean> {
   if (supabase) {
     try {
       const { error } = await supabase.from('collections').delete().eq('id', id);
-      if (error) console.error('Supabase deleteCollectionAsync error:', error);
+      if (error) console.error('Supabase deleteCollectionAsync error:', JSON.stringify(error, null, 2));
     } catch (e) {
       console.error('Supabase deleteCollectionAsync failed:', e);
     }
@@ -482,6 +486,8 @@ export async function getReviewsAsync(): Promise<Review[]> {
       const { data, error } = await supabase.from('reviews').select('*').order('created_at', { ascending: false });
       if (!error && data) {
         return data.map(mapReviewFromDb);
+      } else if (error) {
+        console.error('Supabase getReviewsAsync error:', JSON.stringify(error, null, 2));
       }
     } catch (e) {
       console.error('Supabase getReviewsAsync failed:', e);
@@ -496,7 +502,7 @@ export async function saveReviewAsync(review: Review): Promise<Review> {
     try {
       const row = mapReviewToDb(review);
       const { error } = await supabase.from('reviews').upsert(row);
-      if (error) console.error('Supabase saveReviewAsync error:', error);
+      if (error) console.error('Supabase saveReviewAsync error:', JSON.stringify(error, null, 2));
     } catch (e) {
       console.error('Supabase saveReviewAsync failed:', e);
     }
@@ -515,7 +521,7 @@ export async function deleteReviewAsync(id: string): Promise<boolean> {
   if (supabase) {
     try {
       const { error } = await supabase.from('reviews').delete().eq('id', id);
-      if (error) console.error('Supabase deleteReviewAsync error:', error);
+      if (error) console.error('Supabase deleteReviewAsync error:', JSON.stringify(error, null, 2));
     } catch (e) {
       console.error('Supabase deleteReviewAsync failed:', e);
     }
@@ -528,9 +534,11 @@ export async function getSettingsAsync(): Promise<Settings> {
   const supabase = getSupabaseClient();
   if (supabase) {
     try {
-      const { data, error } = await supabase.from('settings').select('*').eq('id', 1).single();
+      const { data, error } = await supabase.from('settings').select('*').limit(1).maybeSingle();
       if (!error && data) {
         return mapSettingsFromDb(data);
+      } else if (error) {
+        console.error('Supabase getSettingsAsync error:', JSON.stringify(error, null, 2));
       }
     } catch (e) {
       console.error('Supabase getSettingsAsync failed:', e);
@@ -544,8 +552,8 @@ export async function saveSettingsAsync(settings: Settings): Promise<Settings> {
   if (supabase) {
     try {
       const row = { id: 1, ...mapSettingsToDb(settings) };
-      const { error } = await supabase.from('settings').upsert(row);
-      if (error) console.error('Supabase saveSettingsAsync error:', error);
+      const { error } = await supabase.from('settings').upsert(row, { onConflict: 'id' });
+      if (error) console.error('Supabase saveSettingsAsync error:', JSON.stringify(error, null, 2));
     } catch (e) {
       console.error('Supabase saveSettingsAsync failed:', e);
     }

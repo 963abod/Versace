@@ -30,8 +30,11 @@ export async function POST(request: Request) {
         const bytes = await file.arrayBuffer();
         const buffer = Buffer.from(bytes);
 
-        const ext = file.name.split('.').pop() || 'png';
+        const rawExt = file.name ? file.name.split('.').pop() || 'png' : 'png';
+        const ext = rawExt.toLowerCase().replace(/[^a-z0-9]/g, '') || 'png';
         const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+
+        console.log(`Uploading file to Supabase Storage bucket 'products' with path: ${filename}`);
 
         const { error: uploadError } = await supabase.storage
           .from('products')
@@ -41,7 +44,7 @@ export async function POST(request: Request) {
           });
 
         if (uploadError) {
-          console.error('Supabase storage upload error:', uploadError);
+          console.error('Supabase storage upload error details:', JSON.stringify(uploadError, null, 2));
           throw uploadError;
         }
 
