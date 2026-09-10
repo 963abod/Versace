@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getStoreData, saveStoreData } from '@/lib/store';
+import { getSettingsAsync, saveSettingsAsync } from '@/lib/store';
 import { getAdminFromSession } from '@/lib/auth';
 
 export async function GET() {
-  const data = getStoreData();
-  const publicSettings = { ...data.settings };
+  const settings = await getSettingsAsync();
+  const publicSettings = { ...settings };
   delete publicSettings.adminPasswordHash;
   return NextResponse.json(publicSettings);
 }
@@ -17,17 +17,17 @@ export async function PUT(request: Request) {
 
   try {
     const newSettings = await request.json();
-    const data = getStoreData();
+    const settings = await getSettingsAsync();
 
-    data.settings = {
-      ...data.settings,
+    const updatedSettings = {
+      ...settings,
       ...newSettings,
-      adminPasswordHash: newSettings.adminPasswordHash || data.settings.adminPasswordHash,
+      adminPasswordHash: newSettings.adminPasswordHash || settings.adminPasswordHash,
     };
 
-    saveStoreData(data);
+    await saveSettingsAsync(updatedSettings);
 
-    const updatedPublicSettings = { ...data.settings };
+    const updatedPublicSettings = { ...updatedSettings };
     delete updatedPublicSettings.adminPasswordHash;
 
     return NextResponse.json(updatedPublicSettings);

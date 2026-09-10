@@ -1,20 +1,11 @@
-import fs from 'fs';
-import path from 'path';
 import { Product, Collection, Review, Settings } from '@/types';
-import { getSupabaseClient, isSupabaseConfigured } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 
-interface StoreData {
+export interface StoreData {
   products: Product[];
   collections: Collection[];
   reviews: Review[];
   settings: Settings;
-}
-
-function getDataFilePath(): string {
-  if (process.env.DATA_DIR) {
-    return path.join(process.env.DATA_DIR, 'store.json');
-  }
-  return path.join(process.cwd(), 'src', 'data', 'store.json');
 }
 
 const INITIAL_DATA: StoreData = {
@@ -234,38 +225,11 @@ const INITIAL_DATA: StoreData = {
   ],
 };
 
+// In-memory fallback state (strictly no filesystem access)
+const memoryStore: StoreData = JSON.parse(JSON.stringify(INITIAL_DATA));
+
 export function getStoreData(): StoreData {
-  try {
-    const filePath = getDataFilePath();
-    const dir = path.dirname(filePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, JSON.stringify(INITIAL_DATA, null, 2), 'utf-8');
-      return INITIAL_DATA;
-    }
-
-    const fileContent = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(fileContent) as StoreData;
-  } catch (error) {
-    console.error('Error reading store data:', error);
-    return INITIAL_DATA;
-  }
-}
-
-export function saveStoreData(data: StoreData): void {
-  try {
-    const filePath = getDataFilePath();
-    const dir = path.dirname(filePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('Error saving store data:', error);
-  }
+  return memoryStore;
 }
 
 // Map database snake_case to Product interface
@@ -291,6 +255,28 @@ function mapProductFromDb(p: Record<string, unknown>): Product {
   };
 }
 
+function mapProductToDb(p: Partial<Product>): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (p.id !== undefined) row.id = p.id;
+  if (p.name !== undefined) row.name = p.name;
+  if (p.nameEn !== undefined) row.name_en = p.nameEn;
+  if (p.price !== undefined) row.price = p.price;
+  if (p.offerPrice !== undefined) row.offer_price = p.offerPrice;
+  if (p.description !== undefined) row.description = p.description;
+  if (p.descriptionEn !== undefined) row.description_en = p.descriptionEn;
+  if (p.images !== undefined) row.images = p.images;
+  if (p.sizes !== undefined) row.sizes = p.sizes;
+  if (p.colors !== undefined) row.colors = p.colors;
+  if (p.category !== undefined) row.category = p.category;
+  if (p.collectionId !== undefined) row.collection_id = p.collectionId;
+  if (p.isNew !== undefined) row.is_new = p.isNew;
+  if (p.isOffer !== undefined) row.is_offer = p.isOffer;
+  if (p.available !== undefined) row.available = p.available;
+  if (p.order !== undefined) row.order = p.order;
+  if (p.createdAt !== undefined) row.created_at = p.createdAt;
+  return row;
+}
+
 // Map database snake_case to Collection interface
 function mapCollectionFromDb(c: Record<string, unknown>): Collection {
   return {
@@ -304,6 +290,18 @@ function mapCollectionFromDb(c: Record<string, unknown>): Collection {
   };
 }
 
+function mapCollectionToDb(c: Partial<Collection>): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (c.id !== undefined) row.id = c.id;
+  if (c.name !== undefined) row.name = c.name;
+  if (c.nameEn !== undefined) row.name_en = c.nameEn;
+  if (c.image !== undefined) row.image = c.image;
+  if (c.description !== undefined) row.description = c.description;
+  if (c.descriptionEn !== undefined) row.description_en = c.descriptionEn;
+  if (c.order !== undefined) row.order = c.order;
+  return row;
+}
+
 // Map database snake_case to Review interface
 function mapReviewFromDb(r: Record<string, unknown>): Review {
   return {
@@ -313,6 +311,16 @@ function mapReviewFromDb(r: Record<string, unknown>): Review {
     rating: Number(r.rating || 5),
     createdAt: String(r.created_at || new Date().toISOString()),
   };
+}
+
+function mapReviewToDb(r: Partial<Review>): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (r.id !== undefined) row.id = r.id;
+  if (r.customerName !== undefined) row.customer_name = r.customerName;
+  if (r.comment !== undefined) row.comment = r.comment;
+  if (r.rating !== undefined) row.rating = r.rating;
+  if (r.createdAt !== undefined) row.created_at = r.createdAt;
+  return row;
 }
 
 // Map database snake_case to Settings interface
@@ -342,20 +350,80 @@ function mapSettingsFromDb(s: Record<string, unknown>): Settings {
   };
 }
 
-// Supabase-enabled Store Functions with Fallback
+function mapSettingsToDb(s: Partial<Settings>): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (s.storeName !== undefined) row.store_name = s.storeName;
+  if (s.logoUrl !== undefined) row.logo_url = s.logoUrl;
+  if (s.heroImage !== undefined) row.hero_image = s.heroImage;
+  if (s.heroTitle !== undefined) row.hero_title = s.heroTitle;
+  if (s.heroTitleEn !== undefined) row.hero_title_en = s.heroTitleEn;
+  if (s.heroDescription !== undefined) row.hero_description = s.heroDescription;
+  if (s.heroDescriptionEn !== undefined) row.hero_description_en = s.heroDescriptionEn;
+  if (s.whatsappNumber !== undefined) row.whatsapp_number = s.whatsappNumber;
+  if (s.phone !== undefined) row.phone = s.phone;
+  if (s.instagram !== undefined) row.instagram = s.instagram;
+  if (s.facebook !== undefined) row.facebook = s.facebook;
+  if (s.googleMaps !== undefined) row.google_maps = s.googleMaps;
+  if (s.address !== undefined) row.address = s.address;
+  if (s.openingHours !== undefined) row.opening_hours = s.openingHours;
+  if (s.aboutUs !== undefined) row.about_us = s.aboutUs;
+  if (s.aboutUsEn !== undefined) row.about_us_en = s.aboutUsEn;
+  if (s.aboutUsImage !== undefined) row.about_us_image = s.aboutUsImage;
+  if (s.footerText !== undefined) row.footer_text = s.footerText;
+  if (s.aboudUrl !== undefined) row.aboud_url = s.aboudUrl;
+  if (s.adminUsername !== undefined) row.admin_username = s.adminUsername;
+  if (s.adminPasswordHash !== undefined) row.admin_password_hash = s.adminPasswordHash;
+  return row;
+}
+
+// Supabase-enabled Store Functions
 export async function getProductsAsync(): Promise<Product[]> {
   const supabase = getSupabaseClient();
   if (supabase) {
     try {
       const { data, error } = await supabase.from('products').select('*').order('order', { ascending: true });
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         return data.map(mapProductFromDb);
       }
     } catch (e) {
-      console.error('Supabase getProductsAsync failed, using JSON fallback:', e);
+      console.error('Supabase getProductsAsync failed:', e);
     }
   }
-  return getStoreData().products;
+  return memoryStore.products;
+}
+
+export async function saveProductAsync(product: Product): Promise<Product> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const row = mapProductToDb(product);
+      const { error } = await supabase.from('products').upsert(row);
+      if (error) console.error('Supabase saveProductAsync error:', error);
+    } catch (e) {
+      console.error('Supabase saveProductAsync failed:', e);
+    }
+  }
+  const index = memoryStore.products.findIndex(p => p.id === product.id);
+  if (index >= 0) {
+    memoryStore.products[index] = product;
+  } else {
+    memoryStore.products.push(product);
+  }
+  return product;
+}
+
+export async function deleteProductAsync(id: string): Promise<boolean> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('products').delete().eq('id', id);
+      if (error) console.error('Supabase deleteProductAsync error:', error);
+    } catch (e) {
+      console.error('Supabase deleteProductAsync failed:', e);
+    }
+  }
+  memoryStore.products = memoryStore.products.filter(p => p.id !== id);
+  return true;
 }
 
 export async function getCollectionsAsync(): Promise<Collection[]> {
@@ -363,14 +431,48 @@ export async function getCollectionsAsync(): Promise<Collection[]> {
   if (supabase) {
     try {
       const { data, error } = await supabase.from('collections').select('*').order('order', { ascending: true });
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         return data.map(mapCollectionFromDb);
       }
     } catch (e) {
-      console.error('Supabase getCollectionsAsync failed, using JSON fallback:', e);
+      console.error('Supabase getCollectionsAsync failed:', e);
     }
   }
-  return getStoreData().collections;
+  return memoryStore.collections;
+}
+
+export async function saveCollectionAsync(collection: Collection): Promise<Collection> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const row = mapCollectionToDb(collection);
+      const { error } = await supabase.from('collections').upsert(row);
+      if (error) console.error('Supabase saveCollectionAsync error:', error);
+    } catch (e) {
+      console.error('Supabase saveCollectionAsync failed:', e);
+    }
+  }
+  const index = memoryStore.collections.findIndex(c => c.id === collection.id);
+  if (index >= 0) {
+    memoryStore.collections[index] = collection;
+  } else {
+    memoryStore.collections.push(collection);
+  }
+  return collection;
+}
+
+export async function deleteCollectionAsync(id: string): Promise<boolean> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('collections').delete().eq('id', id);
+      if (error) console.error('Supabase deleteCollectionAsync error:', error);
+    } catch (e) {
+      console.error('Supabase deleteCollectionAsync failed:', e);
+    }
+  }
+  memoryStore.collections = memoryStore.collections.filter(c => c.id !== id);
+  return true;
 }
 
 export async function getReviewsAsync(): Promise<Review[]> {
@@ -378,14 +480,48 @@ export async function getReviewsAsync(): Promise<Review[]> {
   if (supabase) {
     try {
       const { data, error } = await supabase.from('reviews').select('*').order('created_at', { ascending: false });
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         return data.map(mapReviewFromDb);
       }
     } catch (e) {
-      console.error('Supabase getReviewsAsync failed, using JSON fallback:', e);
+      console.error('Supabase getReviewsAsync failed:', e);
     }
   }
-  return getStoreData().reviews;
+  return memoryStore.reviews;
+}
+
+export async function saveReviewAsync(review: Review): Promise<Review> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const row = mapReviewToDb(review);
+      const { error } = await supabase.from('reviews').upsert(row);
+      if (error) console.error('Supabase saveReviewAsync error:', error);
+    } catch (e) {
+      console.error('Supabase saveReviewAsync failed:', e);
+    }
+  }
+  const index = memoryStore.reviews.findIndex(r => r.id === review.id);
+  if (index >= 0) {
+    memoryStore.reviews[index] = review;
+  } else {
+    memoryStore.reviews.push(review);
+  }
+  return review;
+}
+
+export async function deleteReviewAsync(id: string): Promise<boolean> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const { error } = await supabase.from('reviews').delete().eq('id', id);
+      if (error) console.error('Supabase deleteReviewAsync error:', error);
+    } catch (e) {
+      console.error('Supabase deleteReviewAsync failed:', e);
+    }
+  }
+  memoryStore.reviews = memoryStore.reviews.filter(r => r.id !== id);
+  return true;
 }
 
 export async function getSettingsAsync(): Promise<Settings> {
@@ -397,8 +533,23 @@ export async function getSettingsAsync(): Promise<Settings> {
         return mapSettingsFromDb(data);
       }
     } catch (e) {
-      console.error('Supabase getSettingsAsync failed, using JSON fallback:', e);
+      console.error('Supabase getSettingsAsync failed:', e);
     }
   }
-  return getStoreData().settings;
+  return memoryStore.settings;
+}
+
+export async function saveSettingsAsync(settings: Settings): Promise<Settings> {
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    try {
+      const row = { id: 1, ...mapSettingsToDb(settings) };
+      const { error } = await supabase.from('settings').upsert(row);
+      if (error) console.error('Supabase saveSettingsAsync error:', error);
+    } catch (e) {
+      console.error('Supabase saveSettingsAsync failed:', e);
+    }
+  }
+  memoryStore.settings = { ...memoryStore.settings, ...settings };
+  return memoryStore.settings;
 }

@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 import { authenticateAdmin, signToken, setAdminAuthCookie } from '@/lib/auth';
-import { getStoreData } from '@/lib/store';
+import { getSettingsAsync } from '@/lib/store';
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { username, password } = body;
 
-    const data = getStoreData();
-    const expectedUsername = data.settings.adminUsername || 'admin';
+    const settings = await getSettingsAsync();
+    const expectedUsername = settings.adminUsername || 'admin';
 
     if (!username || !password) {
       return NextResponse.json(

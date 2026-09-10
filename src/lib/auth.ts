@@ -1,7 +1,7 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import bcrypt from 'bcryptjs';
-import { getStoreData } from '@/lib/store';
+import { getSettingsAsync } from '@/lib/store';
 
 const COOKIE_NAME = 'versace_admin_token';
 
@@ -33,8 +33,8 @@ export async function verifyToken(token: string) {
 }
 
 export async function authenticateAdmin(password: string): Promise<boolean> {
-  const data = getStoreData();
-  const hash = data.settings.adminPasswordHash;
+  const settings = await getSettingsAsync();
+  const hash = settings.adminPasswordHash;
   if (!hash) return false;
   return await bcrypt.compare(password, hash);
 }

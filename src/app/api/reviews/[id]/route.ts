@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getStoreData, saveStoreData } from '@/lib/store';
+import { getReviewsAsync, saveReviewAsync, deleteReviewAsync } from '@/lib/store';
 import { getAdminFromSession } from '@/lib/auth';
 
 export async function PUT(
@@ -14,21 +14,21 @@ export async function PUT(
   const { id } = await params;
   try {
     const body = await request.json();
-    const data = getStoreData();
-    const index = data.reviews.findIndex(r => r.id === id);
+    const reviews = await getReviewsAsync();
+    const existing = reviews.find(r => r.id === id);
 
-    if (index === -1) {
+    if (!existing) {
       return NextResponse.json({ error: 'التقييم غير موجود' }, { status: 404 });
     }
 
-    data.reviews[index] = {
-      ...data.reviews[index],
+    const updatedReview = {
+      ...existing,
       ...body,
-      rating: body.rating !== undefined ? Number(body.rating) : data.reviews[index].rating,
+      rating: body.rating !== undefined ? Number(body.rating) : existing.rating,
     };
 
-    saveStoreData(data);
-    return NextResponse.json(data.reviews[index]);
+    await saveReviewAsync(updatedReview);
+    return NextResponse.json(updatedReview);
   } catch (error) {
     console.error('Error updating review:', error);
     return NextResponse.json({ error: 'فشل تحديث التقييم' }, { status: 500 });
@@ -45,15 +45,14 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  const data = getStoreData();
-  const index = data.reviews.findIndex(r => r.id === id);
+  const reviews = await getReviewsAsync();
+  const existing = reviews.find(r => r.id === id);
 
-  if (index === -1) {
+  if (!existing) {
     return NextResponse.json({ error: 'التقييم غير موجود' }, { status: 404 });
   }
 
-  data.reviews.splice(index, 1);
-  saveStoreData(data);
+  await deleteReviewAsync(id);
 
   return NextResponse.json({ success: true });
 }

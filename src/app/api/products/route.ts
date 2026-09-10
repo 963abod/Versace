@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getStoreData, saveStoreData } from '@/lib/store';
+import { getProductsAsync, saveProductAsync } from '@/lib/store';
 import { getAdminFromSession } from '@/lib/auth';
 import { Product } from '@/types';
 
@@ -16,8 +16,8 @@ export async function GET(request: Request) {
   const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined;
   const sortBy = searchParams.get('sortBy') || 'order';
 
-  const data = getStoreData();
-  let products = [...data.products];
+  const allProducts = await getProductsAsync();
+  let products = [...allProducts];
 
   if (search) {
     products = products.filter(
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const data = getStoreData();
+    const allProducts = await getProductsAsync();
 
     const newProduct: Product = {
       id: 'prod-' + Date.now(),
@@ -100,12 +100,11 @@ export async function POST(request: Request) {
       isOffer: Boolean(body.isOffer),
       offerPrice: body.offerPrice ? Number(body.offerPrice) : undefined,
       available: body.available !== undefined ? Boolean(body.available) : true,
-      order: body.order ? Number(body.order) : data.products.length + 1,
+      order: body.order ? Number(body.order) : allProducts.length + 1,
       createdAt: new Date().toISOString(),
     };
 
-    data.products.push(newProduct);
-    saveStoreData(data);
+    await saveProductAsync(newProduct);
 
     return NextResponse.json(newProduct, { status: 201 });
   } catch (error) {

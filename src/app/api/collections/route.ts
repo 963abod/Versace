@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getStoreData, saveStoreData } from '@/lib/store';
+import { getCollectionsAsync, saveCollectionAsync } from '@/lib/store';
 import { getAdminFromSession } from '@/lib/auth';
 import { Collection } from '@/types';
 
 export async function GET() {
-  const data = getStoreData();
-  const collections = [...data.collections].sort((a, b) => a.order - b.order);
+  const allCollections = await getCollectionsAsync();
+  const collections = [...allCollections].sort((a, b) => a.order - b.order);
   return NextResponse.json(collections);
 }
 
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const data = getStoreData();
+    const allCollections = await getCollectionsAsync();
 
     const newCollection: Collection = {
       id: 'col-' + Date.now(),
@@ -26,11 +26,10 @@ export async function POST(request: Request) {
       image: body.image || 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35',
       description: body.description || '',
       descriptionEn: body.descriptionEn || '',
-      order: body.order ? Number(body.order) : data.collections.length + 1,
+      order: body.order ? Number(body.order) : allCollections.length + 1,
     };
 
-    data.collections.push(newCollection);
-    saveStoreData(data);
+    await saveCollectionAsync(newCollection);
 
     return NextResponse.json(newCollection, { status: 201 });
   } catch (error) {
