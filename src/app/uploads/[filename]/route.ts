@@ -3,9 +3,6 @@ import fs from 'fs';
 import path from 'path';
 
 function getUploadDir(): string {
-  if (process.env.DATA_DIR) {
-    return path.join(process.env.DATA_DIR, 'uploads');
-  }
   return path.join(process.cwd(), 'public', 'uploads');
 }
 

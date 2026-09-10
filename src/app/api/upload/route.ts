@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getAdminFromSession } from '@/lib/auth';
+import { getSupabaseClient } from '@/lib/supabase';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 
 function getUploadDir(): string {
-  if (process.env.DATA_DIR) {
-    return path.join(process.env.DATA_DIR, 'uploads');
-  }
   return path.join(process.cwd(), 'public', 'uploads');
 }
 
@@ -24,21 +22,50 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'لم يتم تحميل أي ملف' }, { status: 400 });
     }
 
-    const uploadDir = getUploadDir();
-    await mkdir(uploadDir, { recursive: true });
-
+    const supabase = getSupabaseClient();
     const fileUrls: string[] = [];
 
-    for (const file of files) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
+    if (supabase) {
+      for (const file of files) {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
 
-      const ext = file.name.split('.').pop() || 'png';
-      const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
-      const filePath = path.join(uploadDir, filename);
+        const ext = file.name.split('.').pop() || 'png';
+        const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
 
-      await writeFile(filePath, buffer);
-      fileUrls.push(`/uploads/${filename}`);
+        const { error: uploadError } = await supabase.storage
+          .from('products')
+          .upload(filename, buffer, {
+            contentType: file.type || `image/${ext}`,
+            upsert: true,
+          });
+
+        if (uploadError) {
+          console.error('Supabase storage upload error:', uploadError);
+          throw uploadError;
+        }
+
+        const { data: urlData } = supabase.storage
+          .from('products')
+          .getPublicUrl(filename);
+
+        fileUrls.push(urlData.publicUrl);
+      }
+    } else {
+      const uploadDir = getUploadDir();
+      await mkdir(uploadDir, { recursive: true });
+
+      for (const file of files) {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+
+        const ext = file.name.split('.').pop() || 'png';
+        const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+        const filePath = path.join(uploadDir, filename);
+
+        await writeFile(filePath, buffer);
+        fileUrls.push(`/uploads/${filename}`);
+      }
     }
 
     return NextResponse.json({ urls: fileUrls });
