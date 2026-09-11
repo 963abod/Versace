@@ -34,4 +34,9 @@ export const Footer: React.FC = () => {
   >
     ABOUD WEB
   </a>
-</p>
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+};
