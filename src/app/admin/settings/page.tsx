@@ -327,8 +327,8 @@ export default function AdminSettingsPage() {
 
               <input
                 type="url"
-                name="googleMapsUrl"
-                value={formData.googleMapsUrl || ''}
+                name="googleMaps"
+                value={formData.googleMaps || ''}
                 onChange={handleChange}
                 placeholder="https://maps.google.com/..."
                 className="w-full bg-black text-white p-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-400 font-mono"
