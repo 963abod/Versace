@@ -25,18 +25,13 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col items-center md:items-end gap-2 text-xs font-light text-neutral-400">
           <p>{footerText}</p>
           <p className="flex items-center gap-1">
-            <span>{t('designedBy', 'تصميم وتطوير', 'Designed & Developed by')}</span>
-            <a
-              href={aboudUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-amber-400 hover:underline font-medium transition-all"
-            >
-              عبود
-            </a>
-          </p>
-        </div>
-      </div>
-    </footer>
-  );
-};
+  <span>Designed & Developed by</span>
+  <a
+    href={aboudUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-amber-400 hover:underline font-medium transition-all"
+  >
+    ABOUD WEB
+  </a>
+</p>
