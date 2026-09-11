@@ -25,8 +25,8 @@ const INITIAL_DATA: StoreData = {
     instagram: 'https://instagram.com/versace',
     facebook: 'https://facebook.com/versace',
     googleMaps: 'https://maps.google.com',
-    address: 'شارع الفخامة الرئيسي، المزة، دمشق',
-    openingHours: 'يومياً من 10:00 صباحاً حتى 11:00 مساءً',
+    address: 'حمص، شارع الحضارة الرئيسي،مقابل قصر يلدز',
+    openingHours: 'يومياً من 8:00 صباحاً حتى 11:59 مساءً',
     aboutUs:
       'تأسست دار الأزياء الفاخرة لتقديم أحدث صيحات الموضة العالمية للرجل العصري. نتميز بتوفير أرقى خامات الأقمشة والتصاميم المبتكرة التي تعكس شخصية الرجل الواثق.',
     aboutUsEn:
