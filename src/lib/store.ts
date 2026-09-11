@@ -416,11 +416,11 @@ function mapSettingsFromDb(
       s.google_maps || 'https://maps.google.com'
     ),
     address: String(
-      s.address || 'شارع الفخامة الرئيسي، المزة، دمشق'
+      s.address || 'حمص، شارع الحضارة الرئيسي،مقابل قصر يلدز'
     ),
     openingHours: String(
       s.opening_hours ||
-        'يومياً من 10:00 صباحاً حتى 11:00 مساءً'
+        'يومياً من 8:00 صباحاً حتى 11:59 مساءً'
     ),
     aboutUs: String(s.about_us || ''),
     aboutUsEn: String(s.about_us_en || ''),
