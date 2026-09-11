@@ -3,7 +3,16 @@
 import React, { useEffect, useState } from 'react';
 import { useSettings } from '@/context/SettingsContext';
 import { Settings } from '@/types';
-import { Save, Upload, CheckCircle2, Store, Phone, Globe, Info } from 'lucide-react';
+import {
+  Save,
+  Upload,
+  CheckCircle2,
+  Store,
+  Phone,
+  Globe,
+  Info,
+  MapPin,
+} from 'lucide-react';
 
 export default function AdminSettingsPage() {
   const { settings, refreshSettings } = useSettings();
@@ -17,12 +26,17 @@ export default function AdminSettingsPage() {
     }
   }, [settings]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, fieldName: keyof Settings) => {
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    fieldName: keyof Settings
+  ) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
@@ -37,7 +51,10 @@ export default function AdminSettingsPage() {
 
       if (res.ok) {
         const data = await res.json();
-        setFormData((prev) => ({ ...prev, [fieldName]: data.urls[0] }));
+        setFormData((prev) => ({
+          ...prev,
+          [fieldName]: data.urls[0],
+        }));
       } else {
         alert('فشل تحميل الصورة');
       }
@@ -76,8 +93,13 @@ export default function AdminSettingsPage() {
     <div className="max-w-4xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-serif text-white font-light">الإعدادات المركزية للمتجر</h1>
-          <p className="text-xs text-neutral-400 mt-1">تعديل اسم المتجر، الهيرو، الشعار، رقم الواتساب، والروابط المركزية</p>
+          <h1 className="text-2xl font-serif text-white font-light">
+            الإعدادات المركزية للمتجر
+          </h1>
+          <p className="text-xs text-neutral-400 mt-1">
+            تعديل اسم المتجر، الهيرو، الشعار، رقم الواتساب، والمعلومات
+            المركزية
+          </p>
         </div>
 
         {savedSuccess && (
@@ -89,6 +111,7 @@ export default function AdminSettingsPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6 text-xs">
+        {/* Store Branding */}
         <div className="p-6 bg-neutral-950 border border-white/10 rounded-2xl space-y-4">
           <div className="flex items-center gap-2 text-amber-400 font-semibold border-b border-white/10 pb-3">
             <Store className="w-4 h-4" />
@@ -97,7 +120,9 @@ export default function AdminSettingsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-neutral-400 mb-1">اسم المتجر</label>
+              <label className="block text-neutral-400 mb-1">
+                اسم المتجر
+              </label>
               <input
                 type="text"
                 name="storeName"
@@ -108,7 +133,10 @@ export default function AdminSettingsPage() {
             </div>
 
             <div>
-              <label className="block text-neutral-400 mb-1">رابط أو صورة الشعار</label>
+              <label className="block text-neutral-400 mb-1">
+                رابط أو صورة الشعار
+              </label>
+
               <div className="flex items-center gap-3">
                 <input
                   type="text"
@@ -117,12 +145,16 @@ export default function AdminSettingsPage() {
                   onChange={handleChange}
                   className="w-full bg-black text-white p-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-400"
                 />
+
                 <label className="px-3 py-3 bg-neutral-900 border border-white/15 hover:border-amber-400 rounded-xl cursor-pointer text-neutral-300 flex-shrink-0">
                   <Upload className="w-4 h-4" />
+
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleFileUpload(e, 'logoUrl')}
+                    onChange={(e) =>
+                      handleFileUpload(e, 'logoUrl')
+                    }
                     className="hidden"
                   />
                 </label>
@@ -131,6 +163,7 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
+        {/* Hero */}
         <div className="p-6 bg-neutral-950 border border-white/10 rounded-2xl space-y-4">
           <div className="flex items-center gap-2 text-amber-400 font-semibold border-b border-white/10 pb-3">
             <Globe className="w-4 h-4" />
@@ -139,7 +172,10 @@ export default function AdminSettingsPage() {
 
           <div className="space-y-4">
             <div>
-              <label className="block text-neutral-400 mb-1">صورة الهيرو الرئيسية</label>
+              <label className="block text-neutral-400 mb-1">
+                صورة الهيرو الرئيسية
+              </label>
+
               <div className="flex items-center gap-3">
                 <input
                   type="text"
@@ -148,12 +184,16 @@ export default function AdminSettingsPage() {
                   onChange={handleChange}
                   className="w-full bg-black text-white p-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-400"
                 />
+
                 <label className="px-3 py-3 bg-neutral-900 border border-white/15 hover:border-amber-400 rounded-xl cursor-pointer text-neutral-300 flex-shrink-0">
                   <Upload className="w-4 h-4" />
+
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleFileUpload(e, 'heroImage')}
+                    onChange={(e) =>
+                      handleFileUpload(e, 'heroImage')
+                    }
                     className="hidden"
                   />
                 </label>
@@ -162,7 +202,10 @@ export default function AdminSettingsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-neutral-400 mb-1">عنوان الهيرو (عربي)</label>
+                <label className="block text-neutral-400 mb-1">
+                  عنوان الهيرو (عربي)
+                </label>
+
                 <input
                   type="text"
                   name="heroTitle"
@@ -173,7 +216,10 @@ export default function AdminSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-neutral-400 mb-1">عنوان الهيرو (English)</label>
+                <label className="block text-neutral-400 mb-1">
+                  عنوان الهيرو (English)
+                </label>
+
                 <input
                   type="text"
                   name="heroTitleEn"
@@ -185,18 +231,22 @@ export default function AdminSettingsPage() {
             </div>
 
             <div>
-              <label className="block text-neutral-400 mb-1">وصف الهيرو النصي</label>
+              <label className="block text-neutral-400 mb-1">
+                وصف الهيرو النصي
+              </label>
+
               <textarea
                 rows={2}
                 name="heroDescription"
                 value={formData.heroDescription || ''}
                 onChange={handleChange}
                 className="w-full bg-black text-white p-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-400"
-              ></textarea>
+              />
             </div>
           </div>
         </div>
 
+        {/* Contact */}
         <div className="p-6 bg-neutral-950 border border-white/10 rounded-2xl space-y-4">
           <div className="flex items-center gap-2 text-amber-400 font-semibold border-b border-white/10 pb-3">
             <Phone className="w-4 h-4" />
@@ -205,7 +255,10 @@ export default function AdminSettingsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-neutral-400 mb-1">رقم الواتساب الرئيسي (مع الرمز الدولي)</label>
+              <label className="block text-neutral-400 mb-1">
+                رقم الواتساب الرئيسي (مع الرمز الدولي)
+              </label>
+
               <input
                 type="text"
                 name="whatsappNumber"
@@ -217,7 +270,10 @@ export default function AdminSettingsPage() {
             </div>
 
             <div>
-              <label className="block text-neutral-400 mb-1">رقم الهاتف الأرضي/المباشر</label>
+              <label className="block text-neutral-400 mb-1">
+                رقم الهاتف الأرضي/المباشر
+              </label>
+
               <input
                 type="text"
                 name="phone"
@@ -230,7 +286,10 @@ export default function AdminSettingsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-neutral-400 mb-1">العنوان التجاري للمعرض</label>
+              <label className="block text-neutral-400 mb-1">
+                العنوان التجاري للمعرض
+              </label>
+
               <input
                 type="text"
                 name="address"
@@ -241,7 +300,10 @@ export default function AdminSettingsPage() {
             </div>
 
             <div>
-              <label className="block text-neutral-400 mb-1">أوقات العمل اليومية</label>
+              <label className="block text-neutral-400 mb-1">
+                أوقات العمل اليومية
+              </label>
+
               <input
                 type="text"
                 name="openingHours"
@@ -251,50 +313,87 @@ export default function AdminSettingsPage() {
               />
             </div>
           </div>
+
+          {/* Google Maps */}
+          <div>
+            <label className="block text-neutral-400 mb-1">
+              رابط موقع المتجر على Google Maps
+            </label>
+
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-11 h-11 bg-neutral-900 border border-white/10 rounded-xl text-amber-400 flex-shrink-0">
+                <MapPin className="w-4 h-4" />
+              </div>
+
+              <input
+                type="url"
+                name="googleMapsUrl"
+                value={formData.googleMapsUrl || ''}
+                onChange={handleChange}
+                placeholder="https://maps.google.com/..."
+                className="w-full bg-black text-white p-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-400 font-mono"
+              />
+            </div>
+
+            <p className="text-[10px] text-neutral-500 mt-2">
+              ضع رابط الموقع الدقيق للمتجر من Google Maps. سيُستخدم
+              لفتح موقع المتجر مباشرة عند الضغط على الموقع في الموقع
+              العام.
+            </p>
+          </div>
         </div>
 
+        {/* About & Footer */}
         <div className="p-6 bg-neutral-950 border border-white/10 rounded-2xl space-y-4">
           <div className="flex items-center gap-2 text-amber-400 font-semibold border-b border-white/10 pb-3">
             <Info className="w-4 h-4" />
-            <span>نص من نحن، حقوق الفوتر، ورابط المطور عبود</span>
+            <span>نص من نحن وحقوق الفوتر</span>
           </div>
 
           <div>
-            <label className="block text-neutral-400 mb-1">نص &quot;من نحن&quot;</label>
+            <label className="block text-neutral-400 mb-1">
+              نص &quot;من نحن&quot;
+            </label>
+
             <textarea
               rows={3}
               name="aboutUs"
               value={formData.aboutUs || ''}
               onChange={handleChange}
               className="w-full bg-black text-white p-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-400"
-            ></textarea>
+            />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-neutral-400 mb-1">نص حقوق الفوتر (Footer Text)</label>
-              <input
-                type="text"
-                name="footerText"
-                value={formData.footerText || ''}
-                onChange={handleChange}
-                className="w-full bg-black text-white p-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-400"
-              />
-            </div>
+          <div>
+            <label className="block text-neutral-400 mb-1">
+              نص حقوق الفوتر (Footer Text)
+            </label>
 
-            <div>
-              <label className="block text-neutral-400 mb-1">رابط موقع المصمم عبود</label>
-              <input
-                type="text"
-                name="aboudUrl"
-                value={formData.aboudUrl || ''}
-                onChange={handleChange}
-                className="w-full bg-black text-white p-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-400 font-mono"
-              />
-            </div>
+            <input
+              type="text"
+              name="footerText"
+              value={formData.footerText || ''}
+              onChange={handleChange}
+              className="w-full bg-black text-white p-3 rounded-xl border border-white/10 focus:outline-none focus:border-amber-400"
+            />
+          </div>
+
+          <div className="p-4 bg-black border border-white/10 rounded-xl">
+            <p className="text-neutral-500 text-[10px] mb-1">
+              رابط المصمم
+            </p>
+
+            <p className="text-white font-medium">
+              ABOUD WEB
+            </p>
+
+            <p className="text-[10px] text-neutral-600 mt-1">
+              هذا الرابط ثابت ولا يمكن تعديله من لوحة التحكم.
+            </p>
           </div>
         </div>
 
+        {/* Save */}
         <div className="flex justify-end pt-2">
           <button
             type="submit"
@@ -302,10 +401,13 @@ export default function AdminSettingsPage() {
             className="flex items-center gap-2 px-8 py-3 bg-amber-400 text-black text-xs font-semibold tracking-wider rounded-xl hover:bg-amber-300 shadow-xl disabled:opacity-50 transition-colors"
           >
             <Save className="w-4 h-4" />
-            <span>{loading ? 'جاري الحفظ...' : 'حفظ التغييرات'}</span>
+
+            <span>
+              {loading ? 'جاري الحفظ...' : 'حفظ التغييرات'}
+            </span>
           </button>
         </div>
       </form>
     </div>
   );
-}
+              }
