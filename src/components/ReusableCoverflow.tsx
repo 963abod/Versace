@@ -82,6 +82,7 @@ export const ReusableCoverflow: React.FC<ReusableCoverflowProps> = ({
         handleNext();
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleNext, handlePrev]);
@@ -96,6 +97,7 @@ export const ReusableCoverflow: React.FC<ReusableCoverflowProps> = ({
 
   const handleTouchEnd = () => {
     if (!touchStartX.current || !touchEndX.current) return;
+
     const distance = touchStartX.current - touchEndX.current;
     const isSwipeLeft = distance > 40;
     const isSwipeRight = distance < -40;
@@ -113,7 +115,11 @@ export const ReusableCoverflow: React.FC<ReusableCoverflowProps> = ({
   if (!items || items.length === 0) {
     return (
       <div className="w-full py-12 text-center text-neutral-500 font-light">
-        {t('noItems', 'لا توجد عناصر لعرضها حالياً', 'No items available at the moment')}
+        {t(
+          'noItems',
+          'لا توجد عناصر لعرضها حالياً',
+          'No items available at the moment'
+        )}
       </div>
     );
   }
@@ -130,11 +136,13 @@ export const ReusableCoverflow: React.FC<ReusableCoverflowProps> = ({
               {sectionTitle}
             </h2>
           )}
+
           {sectionSubtitle && (
             <p className="text-xs sm:text-sm text-neutral-400 font-light mt-2 max-w-md mx-auto">
               {sectionSubtitle}
             </p>
           )}
+
           <div className="mt-3 h-[1px] w-16 bg-amber-400/50 mx-auto"></div>
         </div>
       )}
@@ -150,23 +158,29 @@ export const ReusableCoverflow: React.FC<ReusableCoverflowProps> = ({
             const offset = (i - currentIndex + total) % total;
 
             let cardClass = 'hidden opacity-0 pointer-events-none';
+
             let style: React.CSSProperties = {
               transition: 'all 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
             };
 
             if (offset === 0) {
-              cardClass = 'z-20 scale-100 sm:scale-105 opacity-100 translate-z-0 pointer-events-auto shadow-2xl shadow-black/80 border border-amber-400/30';
+              cardClass =
+                'z-20 scale-100 sm:scale-105 opacity-100 translate-z-0 pointer-events-auto shadow-2xl shadow-black/80 border border-amber-400/30';
             } else if (offset === 1) {
-              cardClass = 'z-10 translate-x-[110px] sm:translate-x-[220px] scale-80 sm:scale-90 opacity-80 translate-z-[-100px] cursor-pointer hover:opacity-100';
+              cardClass =
+                'z-10 translate-x-[110px] sm:translate-x-[220px] scale-80 sm:scale-90 opacity-80 translate-z-[-100px] cursor-pointer hover:opacity-100';
               style.filter = 'grayscale(100%)';
             } else if (offset === 2) {
-              cardClass = 'z-0 translate-x-[200px] sm:translate-x-[400px] scale-65 sm:scale-75 opacity-40 translate-z-[-300px] cursor-pointer hidden xs:block';
+              cardClass =
+                'z-0 translate-x-[200px] sm:translate-x-[400px] scale-65 sm:scale-75 opacity-40 translate-z-[-300px] cursor-pointer hidden xs:block';
               style.filter = 'grayscale(100%)';
             } else if (offset === total - 1) {
-              cardClass = 'z-10 -translate-x-[110px] sm:-translate-x-[220px] scale-80 sm:scale-90 opacity-80 translate-z-[-100px] cursor-pointer hover:opacity-100';
+              cardClass =
+                'z-10 -translate-x-[110px] sm:-translate-x-[220px] scale-80 sm:scale-90 opacity-80 translate-z-[-100px] cursor-pointer hover:opacity-100';
               style.filter = 'grayscale(100%)';
             } else if (offset === total - 2) {
-              cardClass = 'z-0 -translate-x-[200px] sm:-translate-x-[400px] scale-65 sm:scale-75 opacity-40 translate-z-[-300px] cursor-pointer hidden xs:block';
+              cardClass =
+                'z-0 -translate-x-[200px] sm:-translate-x-[400px] scale-65 sm:scale-75 opacity-40 translate-z-[-300px] cursor-pointer hidden xs:block';
               style.filter = 'grayscale(100%)';
             }
 
@@ -203,6 +217,7 @@ export const ReusableCoverflow: React.FC<ReusableCoverflowProps> = ({
                         {t('badgeNew', 'حديثاً', 'NEW')}
                       </span>
                     )}
+
                     {item.isOffer && (
                       <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-rose-600 text-white rounded-full shadow-md">
                         {t('badgeOffer', 'عروض', 'OFFER')}
@@ -226,15 +241,16 @@ export const ReusableCoverflow: React.FC<ReusableCoverflowProps> = ({
                         {item.offerPrice ? (
                           <>
                             <span className="text-amber-400 font-semibold text-sm sm:text-base">
-                              ${item.offerPrice}
+                              {item.offerPrice.toLocaleString('en-US')} SYP
                             </span>
+
                             <span className="text-neutral-500 text-xs line-through">
-                              ${item.price}
+                              {item.price.toLocaleString('en-US')} SYP
                             </span>
                           </>
                         ) : (
                           <span className="text-neutral-200 font-semibold text-sm sm:text-base">
-                            ${item.price}
+                            {item.price.toLocaleString('en-US')} SYP
                           </span>
                         )}
                       </div>
@@ -245,6 +261,7 @@ export const ReusableCoverflow: React.FC<ReusableCoverflowProps> = ({
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+
                             if (onItemClick) {
                               onItemClick(item, i);
                             }
@@ -256,7 +273,11 @@ export const ReusableCoverflow: React.FC<ReusableCoverflowProps> = ({
 
                         <a
                           href={`https://wa.me/${cleanNumber}?text=${encodeURIComponent(
-                            t('waInquiryMsg', `مرحباً، أود الاستفسار عن منتج: ${item.title}`, `Hello, I would like to inquire about: ${item.title}`)
+                            t(
+                              'waInquiryMsg',
+                              `مرحباً، أود الاستفسار عن منتج: ${item.title}`,
+                              `Hello, I would like to inquire about: ${item.title}`
+                            )
                           )}`}
                           target="_blank"
                           rel="noopener noreferrer"
