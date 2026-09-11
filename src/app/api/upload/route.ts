@@ -4,7 +4,7 @@ import { verifyToken } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify admin authentication
+    // Check admin authentication
     const token = request.cookies.get('versace_admin_token')?.value;
 
     if (!token) {
@@ -23,92 +23,121 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Read uploaded files
     const formData = await request.formData();
-    const file = formData.get('file');
 
-    if (!(file instanceof File)) {
+    // The admin page sends files using the "files" field
+    const files = formData.getAll('files');
+
+    if (!files.length) {
       return NextResponse.json(
-        { error: 'No file provided' },
+        { error: 'No files provided' },
         { status: 400 }
       );
     }
 
-    // Basic validation
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json(
-        { error: 'Only image files are allowed' },
-        { status: 400 }
-      );
-    }
-
-    // 10MB maximum
-    if (file.size > 10 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: 'Image size must be less than 10MB' },
-        { status: 400 }
-      );
-    }
-
+    // Supabase admin client
     const supabase = getSupabaseAdminClient();
 
     if (!supabase) {
+      console.error('Supabase admin client is not configured');
+
       return NextResponse.json(
         { error: 'Supabase admin client is not configured' },
         { status: 500 }
       );
     }
 
-    const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const uploadedFiles: Array<{
+      url: string;
+      path: string;
+    }> = [];
 
-    const safeExtension = /^[a-z0-9]+$/.test(extension)
-      ? extension
-      : 'jpg';
+    for (const file of files) {
+      if (!(file instanceof File)) {
+        return NextResponse.json(
+          { error: 'Invalid file' },
+          { status: 400 }
+        );
+      }
 
-    const fileName = `${crypto.randomUUID()}.${safeExtension}`;
+      if (!file.type.startsWith('image/')) {
+        return NextResponse.json(
+          { error: 'Only image files are allowed' },
+          { status: 400 }
+        );
+      }
 
-    const filePath = `products/${fileName}`;
+      if (file.size > 10 * 1024 * 1024) {
+        return NextResponse.json(
+          { error: 'Image size must be less than 10MB' },
+          { status: 400 }
+        );
+      }
 
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
+      const extension =
+        file.name.split('.').pop()?.toLowerCase() || 'jpg';
 
-    const { error: uploadError } = await supabase.storage
-      .from('products')
-      .upload(filePath, fileBuffer, {
-        contentType: file.type,
-        upsert: false,
+      const safeExtension = /^[a-z0-9]+$/.test(extension)
+        ? extension
+        : 'jpg';
+
+      const fileName = `${crypto.randomUUID()}.${safeExtension}`;
+
+      // Store inside the products bucket
+      const filePath = fileName;
+
+      const fileBuffer = Buffer.from(await file.arrayBuffer());
+
+      const { error: uploadError } = await supabase.storage
+        .from('products')
+        .upload(filePath, fileBuffer, {
+          contentType: file.type,
+          upsert: false,
+        });
+
+      if (uploadError) {
+        console.error(
+          'Supabase storage upload error:',
+          JSON.stringify(uploadError, null, 2)
+        );
+
+        return NextResponse.json(
+          {
+            error: 'Failed to upload image',
+            details: uploadError.message,
+          },
+          { status: 500 }
+        );
+      }
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage
+        .from('products')
+        .getPublicUrl(filePath);
+
+      uploadedFiles.push({
+        url: publicUrl,
+        path: filePath,
       });
-
-    if (uploadError) {
-      console.error(
-        'Supabase storage upload error:',
-        JSON.stringify(uploadError, null, 2)
-      );
-
-      return NextResponse.json(
-        {
-          error: 'Failed to upload image',
-          details: uploadError.message,
-        },
-        { status: 500 }
-      );
     }
-
-    const {
-      data: { publicUrl },
-    } = supabase.storage
-      .from('products')
-      .getPublicUrl(filePath);
 
     return NextResponse.json({
       success: true,
-      url: publicUrl,
-      path: filePath,
+      files: uploadedFiles,
+      urls: uploadedFiles.map((file) => file.url),
     });
   } catch (error) {
     console.error('Upload route error:', error);
 
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Internal server error',
+        details:
+          error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
-      }
+}
