@@ -6,7 +6,7 @@ const rawUrl =
   '';
 
 const supabaseUrl = rawUrl.trim().replace(/\/+$/, '');
-
+ console.log('SUPABASE URL:', supabaseUrl);
 const supabaseAnonKey = (
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
