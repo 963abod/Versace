@@ -16,6 +16,9 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: 'VERSACE — Luxury Men Fashion Store',
   description: 'Unrivaled Luxury, Authentic Italian Style for the Modern Gentleman.',
+  verification: {
+    google: 'UVeBc07HbHq-aG_y2kzAuQGC0PY1kI-ojfVPLts9v6w',
+  },
   openGraph: {
     title: 'VERSACE — Luxury Men Fashion Store',
     description: 'Unrivaled Luxury, Authentic Italian Style for the Modern Gentleman.',
